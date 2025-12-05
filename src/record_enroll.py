@@ -9,7 +9,7 @@ project_root = os.path.dirname(os.path.dirname(__file__))  # Go up one level fro
 recordings_dir = os.path.join(project_root, "recordings", "my_voice_samples")  # Subfolder for samples
 os.makedirs(recordings_dir, exist_ok=True)
 
-enroll_filename = os.path.join(recordings_dir, "enroll30.wav")
+enroll_filename = os.path.join(recordings_dir, "enroll.wav")
 
 # ----------------------------
 # Recording settings

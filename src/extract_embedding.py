@@ -31,8 +31,8 @@ signal = signal.squeeze(0).unsqueeze(0)
 embeddings = classifier.encode_batch(signal)
 
 # Save embedding as voice print
-os.makedirs("recordings", exist_ok=True)
-torch.save(embeddings, "recordings/enroll_embedding.pt")
+os.makedirs("recordings/enroll_embedding", exist_ok=True)
+torch.save(embeddings, "recordings/enroll_embedding/enroll_embedding.pt")
 
 print(" Enrollment complete. Voice print saved as enroll_embedding.pt")
 
