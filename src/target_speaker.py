@@ -18,9 +18,7 @@ ENROLL_EMBED_PATH = os.path.join(BASE_DIR, "enroll_embedding", "enroll_embedding
 OUTPUT_DIR = os.path.join(BASE_DIR, "step3_output")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# ============================================================
-# STEP 1 — RECORD MIXTURE
-# ============================================================
+
 def record_mixture(output_path):
     print("🎤 Recording mixture... Speak now!")
     audio = sd.rec(int(RECORD_SECONDS * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=1)
@@ -28,9 +26,7 @@ def record_mixture(output_path):
     torchaudio.save(output_path, torch.tensor(audio).transpose(0, 1), SAMPLE_RATE)
     print(f"✅ Recorded mixture saved: {output_path}")
 
-# ============================================================
-# STEP 2 — LOAD MODELS
-# ============================================================
+
 print("🧠 Loading SepFormer model...")
 separator = SepformerSeparation.from_hparams(
     source="speechbrain/sepformer-whamr",
@@ -43,14 +39,10 @@ encoder = EncoderClassifier.from_hparams(
     savedir="pretrained_models/spkrec-ecapa"
 )
 
-# ============================================================
-# STEP 3 — LOAD ENROLLED EMBEDDING
-# ============================================================
+
 enroll_embedding = torch.load(ENROLL_EMBED_PATH).squeeze(0)
 
-# ============================================================
-# STEP 4 — SEPARATE VOICES WITH SEPFORMER
-# ============================================================
+
 def separate_voices(input_path):
     print("🔄 Separating voices...")
     est_sources = separator.separate_file(path=input_path)  # [1, T, N_src]
@@ -63,20 +55,19 @@ def separate_voices(input_path):
     for i in range(num_sources):
         waveform_8k = est_sources[0, :, i].unsqueeze(0).cpu()  # [1, T]
 
-        # Upsample to 16 kHz for ECAPA
+        
         waveform_16k = torchaudio.functional.resample(waveform_8k, orig_freq=8000, new_freq=16000)
 
         out_path = os.path.join(OUTPUT_DIR, f"speaker_{i}.wav")
         torchaudio.save(out_path, waveform_16k, 16000)
         separated_paths.append(out_path)
+    
 
         print(f"   → Saved separated file (16kHz): {out_path}")
 
     return separated_paths
 
-# ============================================================
-# STEP 5 — COMPUTE EMBEDDING FOR EACH SEPARATED SPEAKER
-# ============================================================
+
 def compute_embedding(path):
     wav, fs = torchaudio.load(path)
 
